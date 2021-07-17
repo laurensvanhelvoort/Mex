@@ -1,5 +1,7 @@
 import random
+import math
 from tkinter import *
+from tkinter import messagebox
 
 dim = [900, 600]
 
@@ -15,11 +17,16 @@ d1 = None
 d2 = None
 throw_txt = None
 cnt_txt = None
+lowest_txt = None
+rnd_txt = "Beëindig ronde"
+
 mex_cnt = 0
+throw_list = []
+round_ended = False
 
 
 def roll_dice():
-    global d1, d2
+    global d1, d2, throw_list
 
     # 'throw' dice
     d1 = random.choice(num)
@@ -36,6 +43,21 @@ def roll_dice():
     # update and display mex counter
     if mex_cnt != 0:
         cnt.config(text=f"Aantal mexen: {mex_cnt}")
+
+    # change button text back and remove lowest test
+    end_round_btn.config(text="Beëindig ronde")
+    lowest.config(text="")
+
+    # keep list with throws within round
+    throw = int(convert_symbol())
+    if throw % 11 == 0:
+        t = throw / 11 * 100
+    elif throw == 21 or throw == 31:
+        t = math.inf
+    else:
+        t = throw
+
+    throw_list.append(t)
 
 
 def convert_symbol():
@@ -58,9 +80,10 @@ def convert_symbol():
 
 
 def check_throw(t):
+    global mex_cnt
+
     num_t = int(t)
     if num_t == 21:
-        global mex_cnt
         mex_cnt += 1
         return "Mex"
     # if multiple of 11 (55, 22, 66 etc.), outcome is koning
@@ -76,11 +99,35 @@ def check_throw(t):
         return str(num_t)
 
 
+def end_round():
+    global throw_list, round_ended
+
+    # update text
+    end_round_btn.config(text="Nieuwe ronde")
+
+    try:
+        # lowest throw
+        l = min(throw_list)
+        throw_list.clear()
+        lowest.config(text=f"Laagste worp: {int(l)}")
+        messagebox.showinfo("Verliezer:", f"Laagste worp: {int(l)}")
+
+    except ValueError:
+        # if error throw that list throw_list is empty, notify players
+        lowest.config(text="Nog geen worpen in ronde")
+        messagebox.showerror("Oei!","Nog geen worpen in ronde")
+
+
 # ------------ TKinter elements ----------------------
 roll_btn = Button(root, text="Gooi!", width=10, bg='#42aaf5', activebackground='#88c6f2', command=roll_dice)
 roll_btn.config(font=("bahnschrift", 20))
 roll_btn.pack()
 roll_btn.place(x=dim[0] / 2.5, y=25)
+
+end_round_btn = Button(root, text=rnd_txt, bg='#fa4332', activebackground='#f7695c', command=end_round)
+end_round_btn.config(font=("bahnschrift", 15))
+end_round_btn.pack()
+end_round_btn.place(x=dim[0] / 2.5, y=dim[1] - 70)
 
 txt = Label(root, text=throw_txt)
 txt.config(font=("bahnschrift", 40))
@@ -91,5 +138,10 @@ cnt = Label(root, text=cnt_txt)
 cnt.config(font=("bahnschrift", 20))
 cnt.pack(side=TOP)
 cnt.place(x=dim[0] / 7, y=300, anchor='center')
+
+lowest = Label(root, text=lowest_txt)
+lowest.config(font=("bahnschrift", 30))
+lowest.pack(side=TOP)
+lowest.place(x=dim[0] / 2, y=475, anchor='center')
 
 root.mainloop()
