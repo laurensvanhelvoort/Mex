@@ -1,5 +1,5 @@
-import random
 import math
+import random
 from tkinter import *
 from tkinter import messagebox
 
@@ -18,11 +18,12 @@ d2 = None
 throw_txt = None
 cnt_txt = None
 lowest_txt = None
+isking = False
 rnd_txt = "Beëindig ronde"
 
 mex_cnt = 0
 throw_list = []
-round_ended = False
+round_cnt = 1
 
 
 def roll_dice():
@@ -80,7 +81,7 @@ def convert_symbol():
 
 
 def check_throw(t):
-    global mex_cnt
+    global mex_cnt, isking
 
     num_t = int(t)
     if num_t == 21:
@@ -90,9 +91,13 @@ def check_throw(t):
     elif num_t % 11 == 0:
         # if 100 is thrown, player becomes koning
         if num_t == 11:
+            isking = True
             return "Jij bent de koning!"
         else:
-            return f"Koning: {int(num_t / 11 * 100)}"
+            k_num = int(num_t / 11 * 100)
+            if isking:
+                messagebox.showinfo("Koning", f"{int(k_num / 100)} slokken voor de koning!")
+            return f"Koning: {k_num}"
     elif num_t == 31:
         return "Slok uitdelen"
     else:
@@ -100,7 +105,7 @@ def check_throw(t):
 
 
 def end_round():
-    global throw_list, round_ended
+    global throw_list, round_cnt
 
     # update text
     end_round_btn.config(text="Nieuwe ronde")
@@ -110,12 +115,15 @@ def end_round():
         l = min(throw_list)
         throw_list.clear()
         lowest.config(text=f"Laagste worp: {int(l)}")
-        messagebox.showinfo("Verliezer:", f"Laagste worp: {int(l)}")
+        messagebox.showinfo(f"Verliezer: {mex_cnt + round_cnt} slokken", f"Laagste worp: {int(l)} \n \n "
+                                                                         f"Je moet {mex_cnt} (aantal mexen) + {round_cnt} (rondes) = {mex_cnt + round_cnt} slokken nemen")
 
+        # increment round
+        round_cnt += 1
     except ValueError:
         # if error throw that list throw_list is empty, notify players
         lowest.config(text="Nog geen worpen in ronde")
-        messagebox.showerror("Oei!","Nog geen worpen in ronde")
+        messagebox.showerror("Oei!", "Nog geen worpen in ronde")
 
 
 # ------------ TKinter elements ----------------------
@@ -131,17 +139,17 @@ end_round_btn.place(x=dim[0] / 2.5, y=dim[1] - 70)
 
 txt = Label(root, text=throw_txt)
 txt.config(font=("bahnschrift", 40))
-txt.pack(side=TOP)
+txt.pack()
 txt.place(x=dim[0] / 2, y=400, anchor='center')
 
 cnt = Label(root, text=cnt_txt)
 cnt.config(font=("bahnschrift", 20))
-cnt.pack(side=TOP)
+cnt.pack()
 cnt.place(x=dim[0] / 7, y=300, anchor='center')
 
 lowest = Label(root, text=lowest_txt)
 lowest.config(font=("bahnschrift", 30))
-lowest.pack(side=TOP)
+lowest.pack()
 lowest.place(x=dim[0] / 2, y=475, anchor='center')
 
 root.mainloop()
