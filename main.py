@@ -1,4 +1,3 @@
-import math
 import random
 from tkinter import *
 from tkinter import messagebox
@@ -54,7 +53,8 @@ def roll_dice():
     if throw % 11 == 0:
         t = throw / 11 * 100
     elif throw == 21 or throw == 31:
-        t = math.inf
+        # 21 and 31 can never be lowest in round
+        t = 601
     else:
         t = throw
 
@@ -106,7 +106,6 @@ def check_throw(t):
 
 def end_round():
     global throw_list, round_cnt
-
     # update text
     end_round_btn.config(text="Nieuwe ronde")
 
